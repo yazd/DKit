@@ -133,10 +133,6 @@ class DCD(sublime_plugin.EventListener):
 
 class DcdStartServerCommand(sublime_plugin.ApplicationCommand):
     def run(self):
-        global server_process
-        if not (server_process is None) and server_process.poll() is None:
-            server_process.terminate()
-
         start_server()
 
 class DcdUpdateIncludePathsCommand(sublime_plugin.TextCommand):
