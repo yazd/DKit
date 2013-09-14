@@ -1,0 +1,7 @@
+{
+  "dcd_path": "/setup/my/path",
+  "dcd_port": 9166,
+  "include_paths": [
+    "/usr/include/d/"
+  ]
+}

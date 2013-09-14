@@ -1,0 +1,8 @@
+{
+  "auto_complete_triggers": [
+    {
+      "characters": ".",
+      "selector": "source.d"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "caption": "DKit: Restart DCD Autocompletion Server",
+    "command": "dcd_start_server"
+  },
+  {
+    "caption": "DKit: Update Import Paths",
+    "command": "dcd_update_include_paths"
+  },
+  {
+    "caption": "DKit: List Installed DUB Packages",
+    "command": "dub_list_installed"
+  },
+  {
+    "caption": "DKit: Create DUB Package File",
+    "command": "dub_create_package"
+  }
+]

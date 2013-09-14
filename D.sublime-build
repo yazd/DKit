@@ -1,0 +1,18 @@
+{
+  "cmd": ["dmd", "-g", "-debug", "$file"],
+  "file_regex": "^(.*?)\\(([0-9]+)\\)",
+  "selector": "source.d",
+
+  "variants":
+  [
+    {
+      "name": "Run",
+      "cmd": ["rdmd", "-g", "-debug", "$file"]
+    },
+    {
+      "name": "dub",
+      "working_dir": "$project_path",
+      "cmd": ["dub"]
+    }
+  ]
+}
