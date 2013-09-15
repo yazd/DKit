@@ -40,7 +40,7 @@ def start_server():
 
     args = [server_path]
     args.extend(include_paths)
-    args.extend('-p' + str(server_port))
+    args.extend(['-p' + str(server_port)])
 
     print('Restarting DCD server...')
     server_process = Popen(args)
@@ -112,7 +112,7 @@ class DCD(sublime_plugin.EventListener):
 
             visible_name = parts[0] + '\t' + cmap[parts[1]]
             if parts[1] == 'f':
-                text = parts[0] + '('
+                text = parts[0]
             else:
                 text = parts[0]
 

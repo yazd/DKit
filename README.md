@@ -15,6 +15,7 @@ TODO
 
 - Find a better way to show call tips (there are some sublime text limitations).
 - Better DUB integration
+- Integrate addr2line for better stack traces
 
 Installation
 ------------
