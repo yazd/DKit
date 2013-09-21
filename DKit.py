@@ -3,6 +3,7 @@
 import sublime, sublime_plugin
 from subprocess import Popen, PIPE
 from os import path
+import json
 
 server_port = 9166
 
@@ -176,3 +177,42 @@ class DubCreatePackageCommand(sublime_plugin.WindowCommand):
 }"""
         view.insert(edit, 0, package)
         view.end_edit(edit)
+
+class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        view = self.view
+        package_folder = path.dirname(view.file_name())
+        package_file = path.basename(view.file_name())
+        if package_file != 'package.json':
+            sublime.error_message('Please open the `package.json` file and then run the command again.')
+            return
+
+        dub = Popen(['dub', 'describe'], stdin=PIPE, stdout=PIPE, cwd=package_folder)
+        description = dub.communicate()
+        description = description[0].decode('utf-8')
+        description = json.loads(description)
+
+        include_paths = set()
+
+        main_package = description['mainPackage']
+
+        for package in description['packages']:
+            base_path = package['path']
+            for f in package['files']:
+                folder = path.join(base_path, path.dirname(f['path']))
+                include_paths.add(folder)
+
+        folders = [{'path': folder} for folder in include_paths]
+        settings = {'include_paths': [f for f in include_paths]}
+        project_settings = {'folders': folders, 'settings': settings}
+
+        project_file = path.join(package_folder, main_package + '.sublime-project')
+        if path.exists(project_file):
+            sublime.error_message('A Sublime Text project already exists in the folder. Aborting.') #TODO: change into something more user-friendly
+            return
+
+        f = open(project_file, "w");
+        f.write(json.dumps(project_settings, indent=4))
+        f.close()
+
+        #TODO: open project

@@ -14,5 +14,9 @@
   {
     "caption": "DKit: Create DUB Package File",
     "command": "dub_create_package"
+  },
+  {
+    "caption": "DKit: Create Project From DUB Package File",
+    "command": "dub_create_project_from_package"
   }
 ]
