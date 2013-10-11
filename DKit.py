@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import sublime, sublime_plugin
-from subprocess import Popen, PIPE
-from os import path
+from subprocess import Popen, PIPE, call
+import os
 import json
+import sys
 
 server_port = 9166
 
@@ -11,6 +12,13 @@ server_path = None
 client_path = None
 
 server_process = None
+
+def open_file(filename):
+    if sys.platform == "win32":
+        os.startfile(filename)
+    else:
+        opener ="open" if sys.platform == "darwin" else "xdg-open"
+        call([opener, filename])
 
 def start_server():
     global server_process
@@ -165,18 +173,20 @@ class DubCreatePackageCommand(sublime_plugin.WindowCommand):
         view = self.window.new_file()
         view.set_name('package.json')
         view.set_syntax_file('Packages/JavaScript/JSON.tmLanguage')
-        edit = view.begin_edit()
+        view.run_command('dub_create_package_text')
 
+class DubCreatePackageTextCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
         package = """{
   "name": "project-name",
   "description": "An example project skeleton",
   "homepage": "http://example.org",
   "copyright": "Copyright (c) 2013, Your Name",
   "authors": [],
-  "dependencies": {}
+  "dependencies": {},
+  "targetType": "executable"
 }"""
-        view.insert(edit, 0, package)
-        view.end_edit(edit)
+        self.view.insert(edit, 0, package)
 
 class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
     def run(self, edit):
@@ -211,8 +221,8 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
             sublime.error_message('A Sublime Text project already exists in the folder. Aborting.') #TODO: change into something more user-friendly
             return
 
-        f = open(project_file, "w");
+        f = open(project_file, "w")
         f.write(json.dumps(project_settings, indent=4))
         f.close()
 
-        #TODO: open project
+        open_file(project_file)
