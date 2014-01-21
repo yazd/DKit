@@ -60,20 +60,27 @@ class DCD(sublime_plugin.EventListener):
         if server_process is None:
             start_server()
 
+        print('in on_query_completions')
+        print('server pid: ' + str(server_process.pid))
+
         position = locations[0]
         position = position - len(prefix)
         if (view.substr(position) != '.'):
             position = locations[0]
 
         response = self.request_completions(view.substr(sublime.Region(0, view.size())), position)
+        print('completions: ')
+        print(response)
         return (response, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
 
     def request_completions(self, file, position):
         args = [client_path, '-c' + str(position), '-p' + str(server_port)]
+        print('arguments for dcd client: ' + ' '.join(args))
         client = Popen(args, stdin=PIPE, stdout=PIPE)
 
         output = client.communicate(file.encode())
         output = output[0].decode('utf-8').splitlines()
+        print('response from dcd client: \n' + '\n'.join(output))
         if len(output) == 0:
             return []
 
