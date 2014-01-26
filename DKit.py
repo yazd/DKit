@@ -65,7 +65,7 @@ def start_server():
     print('Restarting DCD server...')
     #print('Include paths: ')
     #print(include_paths)
-    server_process = Popen(args)
+    server_process = Popen(' '.join(args), shell=True)
     return True
 
 class DCD(sublime_plugin.EventListener):
