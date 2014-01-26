@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import sublime, sublime_plugin
-from subprocess import Popen, PIPE
-from os import path
+from subprocess import Popen, PIPE, call
+import os
+import json
+import sys
 
 server_port = 9166
 
@@ -15,6 +17,18 @@ plugin_settings = sublime.load_settings('DKit.sublime-settings')
 
 def read_settings(key, default):
     return sublime.active_window().active_view().settings().get(key, plugin_settings.get(key, default))
+
+def read_all_settings(key):
+    result = plugin_settings.get(key, [])
+    result.extend(sublime.active_window().active_view().settings().get(key, []))
+    return result
+
+def open_file(filename):
+    if sys.platform == 'win32':
+        os.startfile(filename)
+    else:
+        opener = 'open' if sys.platform == 'darwin' else 'xdg-open'
+        call([opener, filename])
 
 def start_server():
     global server_process
@@ -30,18 +44,18 @@ def start_server():
 
     global server_path
     global client_path
-    server_path = path.join(dcd_path, 'dcd-server')
-    client_path = path.join(dcd_path, 'dcd-client')
+    server_path = os.path.join(dcd_path, 'dcd-server' + ('.exe' if sys.platform == 'win32' else ''))
+    client_path = os.path.join(dcd_path, 'dcd-client' + ('.exe' if sys.platform == 'win32' else ''))
 
-    if not path.exists(server_path):
+    if not os.path.exists(server_path):
         sublime.error_message('DCD server doesn\'t exist in the path specified:\n' + server_path + '\n\nSetup the path in DCD package settings and then restart sublime to get things working.')
         return False
 
-    if not path.exists(client_path):
+    if not os.path.exists(client_path):
         sublime.error_message('DCD client doesn\'t exist in the path specified:\n' + client_path + '\n\nSetup the path in DCD package settings and then restart sublime to get things working.')
         return False
 
-    include_paths = read_settings('include_paths', [])
+    include_paths = read_all_settings('include_paths')
     include_paths = ['-I' + p for p in include_paths]
 
     args = [server_path]
@@ -49,6 +63,8 @@ def start_server():
     args.extend(['-p' + str(server_port)])
 
     print('Restarting DCD server...')
+    #print('Include paths: ')
+    #print(include_paths)
     server_process = Popen(args)
     return True
 
@@ -143,24 +159,30 @@ class DcdStartServerCommand(sublime_plugin.ApplicationCommand):
 
 class DcdUpdateIncludePathsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        global client_path
         Popen([client_path, '--clearCache']).wait()
 
         include_paths = self.view.settings().get('include_paths', [])
+        if self.view.file_name():
+            include_paths.append(os.path.dirname(self.view.file_name()))
 
         if len(include_paths) > 0:
             args = [client_path]
             args.extend(['-I' + p for p in include_paths])
 
+            #print('Updating include paths:')
+            #print(args)
             Popen(args).wait()
 
 class DubListInstalledCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         try:
-            dub = Popen(['dub', 'list-installed'], stdin=PIPE, stdout=PIPE)
+            dub = Popen(['dub', 'list'], stdin=PIPE, stdout=PIPE)
             output = dub.communicate()
             output = output[0].splitlines()
             del output[0]
-            output = [o.strip() for o in output if len(o.strip()) > 0]
+            output = [o.decode('utf-8').strip().partition(': ')[0] for o in output]
+            output = [o for o in output if len(o) > 0]
             self.view.window().show_quick_panel(output, None)
         except OSError:
             sublime.error_message('Unable to run DUB. Make sure that it is installed correctly and on your PATH environment variable')
@@ -168,17 +190,75 @@ class DubListInstalledCommand(sublime_plugin.TextCommand):
 class DubCreatePackageCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.new_file()
-        view.set_name('package.json')
+        view.set_name('dub.json')
         view.set_syntax_file('Packages/JavaScript/JSON.tmLanguage')
-        edit = view.begin_edit()
+        view.run_command('dub_create_package_text')
 
+class DubCreatePackageTextCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
         package = """{
   "name": "project-name",
   "description": "An example project skeleton",
   "homepage": "http://example.org",
-  "copyright": "Copyright (c) 2013, Your Name",
+  "copyright": "Copyright (c) 2014, Your Name",
   "authors": [],
-  "dependencies": {}
+  "dependencies": {},
+  "targetType": "executable"
 }"""
-        view.insert(edit, 0, package)
-        view.end_edit(edit)
+        self.view.insert(edit, 0, package)
+
+class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        view = self.view
+        if view.file_name():
+            package_folder = os.path.dirname(view.file_name())
+            package_file = os.path.basename(view.file_name())
+
+            if package_file != 'dub.json' and package_file != 'package.json':
+                sublime.error_message('Please open the `dub.json` or `package.json` file and then run the command again.')
+                return
+        else:
+            sublime.error_message('Please open the `dub.json` or `package.json` file and then run the command again.')
+            return
+
+        dub = Popen(['dub', 'describe'], stdin=PIPE, stdout=PIPE, cwd=package_folder)
+        description = dub.communicate()
+        description = description[0].decode('utf-8')
+
+        if description.startswith('Checking dependencies'):
+            end_of_line = description.find('\n')
+            description = description[end_of_line:]
+
+        print(description)
+
+        try:
+            description = json.loads(description)
+        except ValueError:
+            sublime.error_message('Please run DUB at least once to figure out dependencies before trying again. Aborting.') #TODO: change into something more user-friendly
+            return
+
+
+        include_paths = set()
+
+        main_package = description['mainPackage']
+
+        for package in description['packages']:
+            base_path = package['path']
+            for f in package['files']:
+                folder = os.path.join(base_path, os.path.dirname(f['path']))
+                include_paths.add(folder)
+
+        folders = [{'path': folder} for folder in include_paths]
+        settings = {'include_paths': [f for f in include_paths]}
+        project_settings = {'folders': folders, 'settings': settings}
+
+        project_file = os.path.join(package_folder, main_package + '.sublime-project')
+        if os.path.exists(project_file):
+            sublime.error_message('A Sublime Text project already exists in the folder. Aborting.') #TODO: change into something more user-friendly
+            return
+
+        f = open(project_file, "w")
+        f.write(json.dumps(project_settings, indent=4))
+        f.close()
+
+        open_file(project_file)

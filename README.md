@@ -1,7 +1,7 @@
 DKit for Sublime Text
 ---------------------
 
-DKit is a package to aid developing D programs using Sublime Text 3. It is still a work in progress.
+DKit is a package to aid developing D programs using Sublime Text 3.
 
 Features
 --------
@@ -15,22 +15,23 @@ TODO
 
 - Find a better way to show call tips (there are some sublime text limitations).
 - Better DUB integration
-- Integrate addr2line for better stack traces
 
 Installation
 ------------
 
 Currently I would like to postpone supporting Sublime Package Control installation until things stabilize with the plugin and proper testing is done on all platforms.
-Only Linux has been tested so far.
+Only Linux has been tested so far. Although it should work properly on other operating systems. (I welcome any feedback)
 
 To install the plugin:
 
-1. Clone this repository into your Sublime Text configurations folder. On Linux, that would be in your ~/.config/sublime-text-3/Packages/.
+1. Clone this repository into your Sublime Text packages folder. You can find where your folder is located by clicking on 'Preferences -> Browse Packages'. Alternatively, on Linux, look in your ~/.config/sublime-text-3/Packages/, or in sublime-text-3\Data\Packages on Windows.
 
 2. You'll need to install [DCD](https://github.com/Hackerpilot/DCD) first. Follow the steps in DCD's [readme](https://github.com/Hackerpilot/DCD/blob/master/README.md#setup).
   1. Do not run the server. DKit will automatically run the server when needed.
   2. Go to 'Preferences -> Package Settings -> DKit -> Settings - User', and set it up like 'Settings - Default' to match your system. Notably you need to set dcd_path to your DCD's installation path.
   3. Setup include_paths to your DMD installation.
+    + On Linux, the default path to your includes are `/usr/include/dmd/phobos` and `/usr/include/dmd/druntime/import`
+    + On Windows, you should have your includes point to `d\\src\\phobos` and `d\\src\\druntime\\import`
   4. You can also add include_paths per project.
 
 3. To use DUB features, you'll need to have [DUB](https://github.com/rejectedsoftware/dub#installation) installed and in your PATH environment variable.
