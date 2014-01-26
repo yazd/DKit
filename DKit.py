@@ -13,12 +13,20 @@ client_path = None
 
 server_process = None
 
-plugin_settings = sublime.load_settings('DKit.sublime-settings')
+plugin_settings = None
 
 def read_settings(key, default):
+    global plugin_settings
+    if plugin_settings is None:
+        plugin_settings = sublime.load_settings('DKit.sublime-settings')
+
     return sublime.active_window().active_view().settings().get(key, plugin_settings.get(key, default))
 
 def read_all_settings(key):
+    global plugin_settings
+    if plugin_settings is None:
+        plugin_settings = sublime.load_settings('DKit.sublime-settings')
+
     result = plugin_settings.get(key, [])
     result.extend(sublime.active_window().active_view().settings().get(key, []))
     return result
