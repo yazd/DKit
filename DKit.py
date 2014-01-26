@@ -11,16 +11,22 @@ client_path = None
 
 server_process = None
 
+plugin_settings = sublime.load_settings('DKit.sublime-settings')
+
+def read_settings(key, default):
+    return sublime.active_window().active_view().settings().get(key, plugin_settings.get(key, default))
+
 def start_server():
     global server_process
 
     if not (server_process is None) and server_process.poll() is None:
         server_process.terminate()
 
-    settings = sublime.load_settings('DKit.sublime-settings')
+    plugin_settings = sublime.load_settings('DKit.sublime-settings')
+
     global server_port
-    server_port = settings.get('dcd_port', 9166)
-    dcd_path = settings.get('dcd_path', '')
+    server_port = read_settings('dcd_port', 9166)
+    dcd_path = read_settings('dcd_path', '')
 
     global server_path
     global client_path
@@ -35,7 +41,7 @@ def start_server():
         sublime.error_message('DCD client doesn\'t exist in the path specified:\n' + client_path + '\n\nSetup the path in DCD package settings and then restart sublime to get things working.')
         return False
 
-    include_paths = settings.get('include_paths')
+    include_paths = read_settings('include_paths', [])
     include_paths = ['-I' + p for p in include_paths]
 
     args = [server_path]
