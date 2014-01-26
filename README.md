@@ -36,6 +36,12 @@ To install the plugin:
 
 3. To use DUB features, you'll need to have [DUB](https://github.com/rejectedsoftware/dub#installation) installed and in your PATH environment variable.
 
+Troubleshooting
+---------------
+
+- If you find that your includes are not being suggested, try running `DKit: Update Import Paths` command in Sublime.
+- For other problems, please use the issue tracker.
+
 Questions
 ---------
 
