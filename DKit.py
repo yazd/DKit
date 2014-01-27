@@ -15,6 +15,12 @@ server_process = None
 
 plugin_settings = None
 
+def get_shell_args(args):
+    if sys.platform == 'win32':
+        return args
+    else:
+        return ' '.join(args)
+
 def read_settings(key, default):
     global plugin_settings
     if plugin_settings is None:
@@ -73,7 +79,7 @@ def start_server():
     print('Restarting DCD server...')
     #print('Include paths: ')
     #print(include_paths)
-    server_process = Popen(' '.join(args), shell=True)
+    server_process = Popen(get_shell_args(args), shell=True)
     return True
 
 class DCD(sublime_plugin.EventListener):
@@ -100,7 +106,7 @@ class DCD(sublime_plugin.EventListener):
 
     def request_completions(self, file, position):
         args = [client_path, '-c' + str(position), '-p' + str(server_port)]
-        client = Popen(' '.join(args), stdin=PIPE, stdout=PIPE, shell=True)
+        client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
 
         output = client.communicate(file.encode())
         output = output[0].decode('utf-8').splitlines()
@@ -168,7 +174,7 @@ class DcdStartServerCommand(sublime_plugin.ApplicationCommand):
 class DcdUpdateIncludePathsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         global client_path
-        Popen(' '.join([client_path, '--clearCache']), shell=True).wait()
+        Popen(get_shell_args([client_path, '--clearCache']), shell=True).wait()
 
         include_paths = self.view.settings().get('include_paths', [])
         if self.view.file_name():
@@ -180,12 +186,12 @@ class DcdUpdateIncludePathsCommand(sublime_plugin.TextCommand):
 
             #print('Updating include paths:')
             #print(args)
-            Popen(' '.join(args), shell=True).wait()
+            Popen(get_shell_args(args), shell=True).wait()
 
 class DubListInstalledCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         try:
-            dub = Popen(' '.join(['dub', 'list']), stdin=PIPE, stdout=PIPE, shell=True)
+            dub = Popen(get_shell_args(['dub', 'list']), stdin=PIPE, stdout=PIPE, shell=True)
             output = dub.communicate()
             output = output[0].splitlines()
             del output[0]
@@ -229,7 +235,7 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
             sublime.error_message('Please open the `dub.json` or `package.json` file and then run the command again.')
             return
 
-        dub = Popen(' '.join(['dub', 'describe']), stdin=PIPE, stdout=PIPE, shell=True, cwd=package_folder)
+        dub = Popen(get_shell_args(['dub', 'describe']), stdin=PIPE, stdout=PIPE, shell=True, cwd=package_folder)
         description = dub.communicate()
         description = description[0].decode('utf-8')
 
