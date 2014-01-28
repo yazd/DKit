@@ -144,7 +144,9 @@ class DCD(sublime_plugin.EventListener):
                 'M': 'module',
                 'a': 'array',
                 'A': 'associative array',
-                'l': 'alias'}
+                'l': 'alias',
+                't': 'template',
+                'T': 'mixin template'}
 
             visible_name = parts[0] + '\t' + cmap[parts[1]]
             if parts[1] == 'f':
