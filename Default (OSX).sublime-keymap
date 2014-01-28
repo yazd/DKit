@@ -1,0 +1,3 @@
+[
+  { "keys": ["super+shift+g"], "command": "dcd_goto_definition" }
+]
