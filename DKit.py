@@ -5,6 +5,7 @@ from subprocess import Popen, PIPE, call
 import os
 import json
 import sys
+import time
 
 server_port = 9166
 
@@ -192,6 +193,41 @@ class DcdUpdateIncludePathsCommand(sublime_plugin.TextCommand):
             #print('Updating include paths:')
             #print(args)
             Popen(get_shell_args(args), shell=True).wait()
+
+class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        global client_path
+        if (len(self.view.sel()) != 1):
+            sublime.error_message('Please set the cursor on the token to check.')
+            return
+
+        pos = self.view.sel()[0].a
+        args = [client_path, '--symbolLocation', '-c ' + str(pos)]
+
+        client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
+        contents = self.view.substr(sublime.Region(0, self.view.size()))
+        output = client.communicate(contents.encode())
+        output = output[0].decode('utf-8')
+        if (len(output) == 0):
+            sublime.error_message('No symbol definition found.')
+            return
+
+        output = output.split('\t', 1)
+        path = output[0].strip()
+        offset = int(output[1].strip())
+
+        if path == 'stdin':
+            new_view = self.view
+        else:
+            new_view = sublime.active_window().open_file(path)
+
+        while not new_view.is_loading:
+            time.sleep(0.005)
+
+        view_region = sublime.Region(offset)
+        new_view.sel().clear()
+        new_view.sel().add(view_region)
+        new_view.show_at_center(offset)
 
 class DubListInstalledCommand(sublime_plugin.TextCommand):
     def run(self, edit):
