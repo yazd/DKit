@@ -36,10 +36,26 @@ To install the plugin:
 
 3. To use DUB features, you'll need to have [DUB](https://github.com/rejectedsoftware/dub#installation) installed and in your PATH environment variable.
 
+Available Commands
+------------------
+
+- DKit: Restart DCD Autocompletion Server
+  - If you notice that the autocompletion stopped working, try running this command to resolve the issue.
+- DKit: Update Import Paths
+  - If you have just added a new file to your project or created a Sublime project from a DUB package, run this command to update the imports.
+- DKit: List Installed DUB Packages
+  - This command lists the DUB packages installed as reported by DUB.
+- DKit: Create DUB Package File
+  - This command creates a dub package template file.
+- DKit: Create Project From DUB Package File
+  - You can create a Sublime project from a DUB package file using this command. Open the DUB package file, then run this to create the project.
+
+
 Troubleshooting
 ---------------
 
 - If you find that your includes are not being suggested, try running `DKit: Update Import Paths` command in Sublime.
+- If you notice that the autocompletion stopped working, try running `DKit: Restart DCD Autocompletion Server` command in Sublime.
 - For other problems, please use the issue tracker.
 
 Questions
