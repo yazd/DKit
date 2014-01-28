@@ -176,9 +176,12 @@ class DcdUpdateIncludePathsCommand(sublime_plugin.TextCommand):
         global client_path
         Popen(get_shell_args([client_path, '--clearCache']), shell=True).wait()
 
-        include_paths = self.view.settings().get('include_paths', [])
+        include_paths = set()
+        for path in self.view.settings().get('include_paths', []):
+            include_paths.add(path)
+
         if self.view.file_name():
-            include_paths.append(os.path.dirname(self.view.file_name()))
+            include_paths.add(os.path.dirname(self.view.file_name()))
 
         if len(include_paths) > 0:
             args = [client_path]
@@ -251,7 +254,6 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
             sublime.error_message('Please run DUB at least once to figure out dependencies before trying again. Aborting.') #TODO: change into something more user-friendly
             return
 
-
         include_paths = set()
 
         main_package = description['mainPackage']
@@ -263,7 +265,7 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
                 include_paths.add(folder)
 
         folders = [{'path': folder} for folder in include_paths]
-        settings = {'include_paths': [f for f in include_paths]}
+        settings = {'include_paths': [f for f in include_paths], 'package_file': view.file_name()}
         project_settings = {'folders': folders, 'settings': settings}
 
         project_file = os.path.join(package_folder, main_package + '.sublime-project')
