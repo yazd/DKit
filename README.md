@@ -53,7 +53,7 @@ Available Commands
 - DKit: Create Project From DUB Package File
   - You can create a Sublime project from a DUB package file using this command. Open the DUB package file, then run this to create the project.
 - DKit: Goto Definition (requires at least DCD 0.3.0-beta)
-  - Use goto definition by setting the cursor in the symbol that you want to goto, and then running the command.
+  - Use goto definition by setting the cursor in the symbol that you want to goto, and then running the command. The default keybinding for this command is ctrl+shift+g.
 
 Troubleshooting
 ---------------
