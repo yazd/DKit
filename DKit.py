@@ -149,7 +149,7 @@ class DCD(sublime_plugin.EventListener):
                 't': 'template',
                 'T': 'mixin template'}
 
-            visible_name = parts[0] + '\t' + cmap[parts[1]]
+            visible_name = parts[0] + '\t' + cmap.get(parts[1], ' ')
             if parts[1] == 'f':
                 text = parts[0]
             else:
@@ -283,8 +283,6 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
         if description.startswith('Checking dependencies'):
             end_of_line = description.find('\n')
             description = description[end_of_line:]
-
-        print(description)
 
         try:
             description = json.loads(description)
