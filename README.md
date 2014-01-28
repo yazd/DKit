@@ -37,9 +37,7 @@ To install the plugin:
 3. To use DUB features, you'll need to have [DUB](https://github.com/rejectedsoftware/dub#installation) installed and in your PATH environment variable.
 
 4. You might want to add custom key bindings for `Goto Definition` command or other commands. You can do that by going to `Preferences -> Key Bindings - User` and having the following as an example:
-    [
-        { "keys": ["ctrl+shift+g"], "command": "dcd_goto_definition" }
-    ]
+    `[{ "keys": ["ctrl+shift+g"], "command": "dcd_goto_definition" }]`
 
 Available Commands
 ------------------
