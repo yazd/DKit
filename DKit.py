@@ -207,8 +207,8 @@ class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
         client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
         contents = self.view.substr(sublime.Region(0, self.view.size()))
         output = client.communicate(contents.encode())
-        output = output[0].decode('utf-8')
-        if (len(output) == 0):
+        output = output[0].decode('utf-8').strip()
+        if len(output) == 0 or output == 'Not found':
             sublime.error_message('No symbol definition found.')
             return
 
