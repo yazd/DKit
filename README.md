@@ -30,7 +30,7 @@ To install the plugin:
   1. Do not run the server. DKit will automatically run the server when needed.
   2. Go to 'Preferences -> Package Settings -> DKit -> Settings - User', and set it up like 'Settings - Default' to match your system. Notably you need to set dcd_path to your DCD's installation path.
   3. Setup include_paths to your DMD installation.
-    + On Linux, the default path to dlang includes are either (`/usr/include/dmd/phobos` and `/usr/include/dmd/druntime/import`) or (`/usr/include/dlang/dmd/phobos` and `/usr/include/dlang/dmd/druntime/import`) on Arch-based distribtuions
+    + On Linux, the default path to dlang includes are either (`/usr/include/dmd/phobos` and `/usr/include/dmd/druntime/import`) or (`/usr/include/dlang/dmd/`) on Arch-based distributions
     + On Windows, you should have your includes point to `d\\src\\phobos` and `d\\src\\druntime\\import`
   4. You can also add include_paths per project.
 
