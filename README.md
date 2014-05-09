@@ -38,7 +38,7 @@ To install the plugin:
 
 4. You might want to add custom key bindings for `Goto Definition` and `Show Documentation` commands or other commands. You can do that by going to `Preferences -> Key Bindings - User` and having the following as an example:
     `[{ "keys": ["ctrl+shift+g"], "command": "dcd_goto_definition" },
-      { "keys": ["ctrl+\\\\"], "command": "dcd_show_documentation" }]`
+      { "keys": ["ctrl+\\"], "command": "dcd_show_documentation" }]`
 
 Available Commands
 ------------------
