@@ -1,3 +1,4 @@
 [
-  { "keys": ["super+shift+g"], "command": "dcd_goto_definition" }
+  { "keys": ["super+shift+g"], "command": "dcd_goto_definition" },
+  { "keys": ["super+\\"], "command": "dcd_show_documentation" }
 ]

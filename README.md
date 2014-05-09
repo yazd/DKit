@@ -36,8 +36,9 @@ To install the plugin:
 
 3. To use DUB features, you'll need to have [DUB](https://github.com/rejectedsoftware/dub#installation) installed and in your PATH environment variable.
 
-4. You might want to add custom key bindings for `Goto Definition` command or other commands. You can do that by going to `Preferences -> Key Bindings - User` and having the following as an example:
-    `[{ "keys": ["ctrl+shift+g"], "command": "dcd_goto_definition" }]`
+4. You might want to add custom key bindings for `Goto Definition` and `Show Documentation` commands or other commands. You can do that by going to `Preferences -> Key Bindings - User` and having the following as an example:
+    `[{ "keys": ["ctrl+shift+g"], "command": "dcd_goto_definition" },
+      { "keys": ["ctrl+\\\\"], "command": "dcd_show_documentation" }]`
 
 Available Commands
 ------------------
@@ -54,6 +55,8 @@ Available Commands
   - You can create a Sublime project from a DUB package file using this command. Open the DUB package file, then run this to create the project.
 - DKit: Goto Definition (requires at least DCD 0.3.0-beta)
   - Use goto definition by setting the cursor in the symbol that you want to goto, and then running the command. The default keybinding for this command is ctrl+shift+g.
+- DKit: Show Documentation (requires at least DCD 0.3.0-beta)
+  - Use show documentation by setting the cursor in the symbol that you want to see documentation for, and then running the command. The default keybinding for this command is ctrl+\\.
 
 Troubleshooting
 ---------------

@@ -22,5 +22,9 @@
   {
     "caption": "DKit: Goto Definition",
     "command": "dcd_goto_definition"
+  },
+  {
+    "caption": "DKit: Show Documentation",
+    "command": "dcd_show_documentation"
   }
 ]

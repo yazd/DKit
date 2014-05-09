@@ -229,6 +229,31 @@ class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
         new_view.sel().add(view_region)
         new_view.show_at_center(offset)
 
+class DcdShowDocumentationCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        global client_path
+        if (len(self.view.sel()) != 1):
+            sublime.error_message('Please set the cursor on the token to check.')
+            return
+
+        pos = self.view.sel()[0].a
+        args = [client_path, '--doc', '-c ' + str(pos)]
+
+        client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
+        contents = self.view.substr(sublime.Region(0, self.view.size()))
+        output = client.communicate(contents.encode())
+        output = output[0].decode('utf-8').strip()
+        if len(output) == 0 or output == 'Not found':
+            sublime.error_message('No documentation found.')
+            return
+        
+        docs = output.replace('\n', '\n\n')
+        docs = docs.replace('\\n', '\n')
+
+        panel = sublime.active_window().create_output_panel('ddoc')
+        panel.insert(edit, 0, docs)
+        sublime.active_window().run_command("show_panel", {"panel": "output.ddoc"})
+
 class DubListInstalledCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         try:
