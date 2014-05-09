@@ -7,11 +7,10 @@ import json
 import sys
 import time
 
-plugin_settings = sublime.load_settings('DKit.sublime-settings')
-server_port = read_settings('dcd_port', 9166)
-dcd_path = read_settings('dcd_path', '')
-server_path = os.path.join(dcd_path, 'dcd-server' + ('.exe' if sys.platform == 'win32' else ''))
-client_path = os.path.join(dcd_path, 'dcd-client' + ('.exe' if sys.platform == 'win32' else ''))
+plugin_settings = None
+server_port = 9166
+server_path = None
+client_path = None
 
 server_process = None
 
