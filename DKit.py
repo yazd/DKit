@@ -6,6 +6,7 @@ import os
 import json
 import sys
 import time
+import functools
 
 plugin_settings = None
 server_port = 9166
@@ -13,6 +14,8 @@ server_path = None
 client_path = None
 
 server_process = None
+
+ON_LOAD = sublime_plugin.all_callbacks['on_load']
 
 def get_shell_args(args):
     if sys.platform == 'win32':
@@ -42,6 +45,76 @@ def open_file(filename):
     else:
         opener = 'open' if sys.platform == 'darwin' else 'xdg-open'
         call([opener, filename])
+
+def goto_offset(view, offset):
+    region = sublime.Region(offset)
+    view.sel().clear()
+    view.sel().add(region)
+    view.show_at_center(region)
+
+def on_load(path=None, window=None, encoded_row_col=True, begin_edit=False):
+    """Decorator to open or switch to a file.
+
+    Opens and calls the "decorated function" for the file specified by path,
+    or the current file if no path is specified. In the case of the former, if
+    the file is open in another tab that tab will gain focus, otherwise the
+    file will be opened in a new tab with a requisite delay to allow the file
+    to open. In the latter case, the "decorated function" will be called on
+    the currently open file.
+
+    :param path: path to a file
+    :param window: the window to open the file in
+    :param encoded_row_col: the ``sublime.ENCODED_POSITION`` flag for
+        ``sublime.Window.open_file``
+    :param begin_edit: if editing the file being opened
+
+    :returns: None
+    """
+    window = window or sublime.active_window()
+
+    def wrapper(f):
+        # if no path, tag is in current open file, return that
+        if not path:
+            return f(window.active_view())
+        # else, open the relevant file
+        view = window.open_file(os.path.normpath(path), encoded_row_col)
+
+        def wrapped():
+            # if editing the open file
+            if begin_edit:
+                with Edit(view):
+                    f(view)
+            else:
+                f(view)
+
+        # if buffer is still loading, wait for it to complete then proceed
+        if view.is_loading():
+
+            class set_on_load():
+                callbacks = ON_LOAD
+
+                def __init__(self):
+                    # append self to callbacks
+                    self.callbacks.append(self)
+
+                def remove(self):
+                    # remove self from callbacks, hence disconnecting it
+                    self.callbacks.remove(self)
+
+                def on_load(self, view):
+                    # on file loading
+                    try:
+                        wrapped()
+                    finally:
+                        # disconnect callback
+                        self.remove()
+
+            set_on_load()
+        # else just proceed (file was likely open already in another tab)
+        else:
+            wrapped()
+
+    return wrapper
 
 def start_server():
     global server_process
@@ -215,17 +288,12 @@ class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
         offset = int(output[1].strip())
 
         if path == 'stdin':
-            new_view = self.view
+            goto_offset(self.view, offset)
         else:
-            new_view = sublime.active_window().open_file(path)
-
-        while not new_view.is_loading:
-            time.sleep(0.005)
-
-        view_region = sublime.Region(offset)
-        new_view.sel().clear()
-        new_view.sel().add(view_region)
-        new_view.show_at_center(offset)
+            @on_load(path)
+            def and_then(view):
+                sublime.set_timeout(functools.partial(goto_offset, view, offset), 10)
+                
 
 class DcdShowDocumentationCommand(sublime_plugin.TextCommand):
     def run(self, edit):
