@@ -6,6 +6,7 @@ import os
 import json
 import sys
 import functools
+import re
 
 plugin_settings = None
 server_port = 9166
@@ -296,6 +297,13 @@ class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
                 
 
 class DcdShowDocumentationCommand(sublime_plugin.TextCommand):
+    _REGEX = re.compile(r'(?<!\\)\\('
+                        '(?P<code>[\\\'"abfnrtv])|'
+                        '(?P<oct>[0-7]{1,3})|'
+                        'x(?P<hex>[0-9a-fA-F]{1,2})|'
+                        'u(?P<uni>[0-9a-fA-F]{4})|'
+                        'U(?P<UNI>[0-9a-fA-F]{8}))')
+
     def run(self, edit):
         global client_path
         if (len(self.view.sel()) != 1):
@@ -313,12 +321,35 @@ class DcdShowDocumentationCommand(sublime_plugin.TextCommand):
             sublime.error_message('No documentation found.')
             return
         
-        docs = output.replace('\n', '\n\n')
-        docs = docs.replace('\\n', '\n')
+        docs = self._REGEX.sub(self._process_escape_codes, output.replace('\n', '\n\n'))
 
         panel = sublime.active_window().create_output_panel('ddoc')
         panel.insert(edit, 0, docs)
         sublime.active_window().run_command("show_panel", {"panel": "output.ddoc"})
+
+    _ESCAPE_CODES = {
+        '\\': '\\',
+        "'": "'",
+        '"': '"',
+        'a': '\a',
+        'f': '\f',
+        'n': '\n',
+        'r': '\r',
+        't': '\t',
+        'v': '\v',
+    }
+
+    def _process_escape_codes(self, match):
+        c = match.group('code')
+        if c is not None:
+            return self._ESCAPE_CODES[c]
+        o = match.group('oct')
+        if c is not None:
+            return chr(int(o, 8))
+        x = match.group('hex') or match.group('uni') or match.group('UNI')
+        if x is not None:
+            return chr(int(o, 16))
+        return match.group()
 
 class DubListInstalledCommand(sublime_plugin.TextCommand):
     def run(self, edit):
