@@ -5,7 +5,6 @@ from subprocess import Popen, PIPE, call
 import os
 import json
 import sys
-import time
 import functools
 
 plugin_settings = None
@@ -82,7 +81,7 @@ def on_load(path=None, window=None, encoded_row_col=True, begin_edit=False):
         def wrapped():
             # if editing the open file
             if begin_edit:
-                with Edit(view):
+                with sublime.Edit(view):
                     f(view)
             else:
                 f(view)
@@ -122,6 +121,7 @@ def start_server():
     if not (server_process is None) and server_process.poll() is None:
         server_process.terminate()
 
+    global plugin_settings
     plugin_settings = sublime.load_settings('DKit.sublime-settings')
 
     global server_port
@@ -391,7 +391,7 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
                 folder = os.path.join(base_path, os.path.dirname(f['path']))
                 include_paths.add(folder)
 
-        folders = [{'path': folder} for folder in include_paths]
+        folders = [{'path': f} for f in include_paths]
         settings = {'include_paths': [f for f in include_paths], 'package_file': view.file_name()}
         project_settings = {'folders': folders, 'settings': settings}
 
