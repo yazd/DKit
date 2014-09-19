@@ -145,7 +145,7 @@ def start_server():
     include_paths = read_all_settings('include_paths')
     include_paths = ['-I' + p for p in include_paths]
 
-    args = [server_path]
+    args = ['"%s"' % server_path]
     args.extend(include_paths)
     args.extend(['-p' + str(server_port)])
 
@@ -178,7 +178,7 @@ class DCD(sublime_plugin.EventListener):
         return (response, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
 
     def request_completions(self, file, position):
-        args = [client_path, '-c' + str(position), '-p' + str(server_port)]
+        args = ['"%s"' % client_path, '-c' + str(position), '-p' + str(server_port)]
         client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
 
         output = client.communicate(file.encode())
@@ -249,7 +249,7 @@ class DcdStartServerCommand(sublime_plugin.ApplicationCommand):
 class DcdUpdateIncludePathsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         global client_path
-        Popen(get_shell_args([client_path, '--clearCache']), shell=True).wait()
+        Popen(get_shell_args(['"%s"' % client_path, '--clearCache']), shell=True).wait()
 
         include_paths = set()
         for path in self.view.settings().get('include_paths', []):
@@ -259,7 +259,7 @@ class DcdUpdateIncludePathsCommand(sublime_plugin.TextCommand):
             include_paths.add(os.path.dirname(self.view.file_name()))
 
         if len(include_paths) > 0:
-            args = [client_path]
+            args = ['"%s"' % client_path]
             args.extend(['-I' + p for p in include_paths])
 
             #print('Updating include paths:')
@@ -274,7 +274,7 @@ class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
             return
 
         pos = self.view.sel()[0].a
-        args = [client_path, '--symbolLocation', '-c ' + str(pos)]
+        args = ['"%s"' % client_path, '--symbolLocation', '-c ' + str(pos)]
 
         client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
         contents = self.view.substr(sublime.Region(0, self.view.size()))
@@ -294,7 +294,7 @@ class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
             @on_load(path)
             def and_then(view):
                 sublime.set_timeout(functools.partial(goto_offset, view, offset), 10)
-                
+
 
 class DcdShowDocumentationCommand(sublime_plugin.TextCommand):
     _REGEX = re.compile(r'(?<!\\)\\('
@@ -311,7 +311,7 @@ class DcdShowDocumentationCommand(sublime_plugin.TextCommand):
             return
 
         pos = self.view.sel()[0].a
-        args = [client_path, '--doc', '-c ' + str(pos)]
+        args = ['"%s"' % client_path, '--doc', '-c ' + str(pos)]
 
         client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
         contents = self.view.substr(sublime.Region(0, self.view.size()))
@@ -320,7 +320,7 @@ class DcdShowDocumentationCommand(sublime_plugin.TextCommand):
         if len(output) == 0 or output == 'Not found':
             sublime.error_message('No documentation found.')
             return
-        
+
         docs = self._REGEX.sub(self._process_escape_codes, output.replace('\n', '\n\n'))
 
         panel = sublime.active_window().create_output_panel('ddoc')
