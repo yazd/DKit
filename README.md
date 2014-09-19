@@ -65,6 +65,11 @@ Troubleshooting
 - If you notice that the autocompletion stopped working, try running `DKit: Restart DCD Autocompletion Server` command in Sublime.
 - For other problems, please use the issue tracker.
 
+Linting
+-------
+
+There is a sublime plugin for linting D code that uses [dscanner][https://github.com/Hackerpilot/Dscanner] at the following [link][https://github.com/economicmodeling/SublimeLinter-dscanner].
+
 Questions
 ---------
 
