@@ -68,7 +68,7 @@ Troubleshooting
 Linting
 -------
 
-There is a sublime plugin for linting D code that uses [dscanner][https://github.com/Hackerpilot/Dscanner] at the following [link][https://github.com/economicmodeling/SublimeLinter-dscanner].
+There is a sublime plugin for linting D code that uses [dscanner](https://github.com/Hackerpilot/Dscanner) at the following [link](https://github.com/economicmodeling/SublimeLinter-dscanner).
 
 Questions
 ---------
