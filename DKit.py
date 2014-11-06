@@ -422,9 +422,10 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
                 folder = os.path.join(base_path, os.path.dirname(f['path']))
                 include_paths.add(folder)
 
-        folders = [{'path': f} for f in include_paths]
+        # folders = [{'path': f} for f in include_paths]
+        project_settings = self.view.window().project_data();
         settings = {'include_paths': [f for f in include_paths], 'package_file': view.file_name()}
-        project_settings = {'folders': folders, 'settings': settings}
+        project_settings.update({'settings': settings})
 
         project_file = os.path.join(package_folder, main_package + '.sublime-project')
         if os.path.exists(project_file):
