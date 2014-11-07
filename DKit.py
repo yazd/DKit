@@ -433,9 +433,7 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
         settings = {'include_paths': [f for f in include_paths], 'package_file': view.file_name()}
         project_settings.update({'settings': settings})
 
-		#this is probably not relevant anymore
-        project_file = os.path.join(package_folder, main_package + '.sublime-project')
-        if os.path.exists(project_file):
+        if not project_window.project_file_name() is None:
             sublime.error_message('A Sublime Text project already exists in the folder. Aborting.') #TODO: change into something more user-friendly
             return
 
