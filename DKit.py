@@ -415,33 +415,31 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
         include_paths = set()
         package_paths = []
 
+        #new project set up
+        project_window = view.window()
+        project_settings = project_window.project_data()
+
+        #if we have no project and no folder open, create new project data
+        if project_settings is None:
+            project_settings = {}
+            project_settings['folders'] = []
+
+        current_folders = set([folder['path'] for folder in project_settings['folders']])
+
         #get dub project info
         for package in description['packages']:
             base_path = package['path']
 
-            package_paths.append({'path': base_path, 'name': package['name']})
+            if base_path not in current_folders:
+                package_paths.append({'path': base_path, 'name': package['name']})
 
             for f in package['importPaths']:
                 folder = os.path.join(base_path, f)
                 include_paths.add(folder)
         settings = {'include_paths': [f for f in include_paths], 'package_file': view.file_name()}
 
-        #new project set up
-        project_window = view.window()
-        project_settings = project_window.project_data()
-
-        #if we have no project and no folder open, create new project data
-        if(project_settings is None):
-            project_settings = {}
-            project_settings['folders'] = []
-
         project_settings['folders'].extend(package_paths)
         project_settings.update({'settings': settings})
-
-        #make sure we're not overwriting an existing project
-        if not project_window.project_file_name() is None:
-            sublime.error_message('A Sublime Text project already exists in the folder. Aborting.') #TODO: change into something more user-friendly
-            return
 
         #update the window with the new project data
         project_window.set_project_data(project_settings)
