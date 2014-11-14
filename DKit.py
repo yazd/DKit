@@ -413,26 +413,38 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
             return
 
         include_paths = set()
+        package_paths = []
 
-        main_package = description['mainPackage']
-
+        #get dub project info
         for package in description['packages']:
             base_path = package['path']
-            for f in package['files']:
-                folder = os.path.join(base_path, os.path.dirname(f['path']))
+
+            package_paths.append({'path': base_path, 'name': package['name']})
+
+            for f in package['importPaths']:
+                folder = os.path.join(base_path, f)
                 include_paths.add(folder)
-
-        folders = [{'path': f} for f in include_paths]
         settings = {'include_paths': [f for f in include_paths], 'package_file': view.file_name()}
-        project_settings = {'folders': folders, 'settings': settings}
 
-        project_file = os.path.join(package_folder, main_package + '.sublime-project')
-        if os.path.exists(project_file):
+        #new project set up
+        project_window = view.window()
+        project_settings = project_window.project_data()
+
+        #if we have no project and no folder open, create new project data
+        if(project_settings is None):
+            project_settings = {}
+            project_settings['folders'] = []
+
+        project_settings['folders'].extend(package_paths)
+        project_settings.update({'settings': settings})
+
+        #make sure we're not overwriting an existing project
+        if not project_window.project_file_name() is None:
             sublime.error_message('A Sublime Text project already exists in the folder. Aborting.') #TODO: change into something more user-friendly
             return
 
-        f = open(project_file, "w")
-        f.write(json.dumps(project_settings, indent=4))
-        f.close()
+        #update the window with the new project data
+        project_window.set_project_data(project_settings)
 
-        open_file(project_file)
+        #finally save the project
+        project_window.run_command('save_project_as')
