@@ -18,10 +18,7 @@ server_process = None
 ON_LOAD = sublime_plugin.all_callbacks['on_load']
 
 def get_shell_args(args):
-    if sys.platform == 'win32':
-        return args
-    else:
-        return ' '.join(args)
+    return ' '.join(args)
 
 def read_settings(key, default):
     global plugin_settings
@@ -150,8 +147,6 @@ def start_server():
     args.extend(['-p' + str(server_port)])
 
     print('Restarting DCD server...')
-    #print('Include paths: ')
-    #print(include_paths)
     server_process = Popen(get_shell_args(args), shell=True)
     return True
 
@@ -178,7 +173,7 @@ class DCD(sublime_plugin.EventListener):
         return (response, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
 
     def request_completions(self, file, position):
-        args = ['"%s"' % client_path, '-c' + str(position), '-p' + str(server_port)]
+        args = ['"%s"' % client_path, '-c', str(position), '-p', str(server_port)]
         client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
 
         output = client.communicate(file.encode())
@@ -262,8 +257,6 @@ class DcdUpdateIncludePathsCommand(sublime_plugin.TextCommand):
             args = ['"%s"' % client_path]
             args.extend(['-I' + p for p in include_paths])
 
-            #print('Updating include paths:')
-            #print(args)
             Popen(get_shell_args(args), shell=True).wait()
 
 class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
@@ -274,7 +267,7 @@ class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
             return
 
         pos = self.view.sel()[0].a
-        args = ['"%s"' % client_path, '--symbolLocation', '-c ' + str(pos)]
+        args = ['"%s"' % client_path, '--symbolLocation', '-c', str(pos)]
 
         client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
         contents = self.view.substr(sublime.Region(0, self.view.size()))
@@ -311,7 +304,7 @@ class DcdShowDocumentationCommand(sublime_plugin.TextCommand):
             return
 
         pos = self.view.sel()[0].a
-        args = ['"%s"' % client_path, '--doc', '-c ' + str(pos)]
+        args = ['"%s"' % client_path, '--doc', '-c', str(pos)]
 
         client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
         contents = self.view.substr(sublime.Region(0, self.view.size()))
