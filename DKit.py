@@ -140,7 +140,7 @@ def start_server():
         return False
 
     include_paths = read_all_settings('include_paths')
-    include_paths = ['-I' + p for p in include_paths]
+    include_paths = ['-I"' + p + '"' for p in include_paths]
 
     args = ['"%s"' % server_path]
     args.extend(include_paths)
