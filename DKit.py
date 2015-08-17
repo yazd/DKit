@@ -158,6 +158,10 @@ class DCD(sublime_plugin.EventListener):
         if not (server_process is None) and server_process.poll() is None:
             server_process.terminate()
 
+    def on_window_command(self, window, command_name, args):
+        if command_name == ("exit" or "close_window"):
+            Popen(client_path + " --shutdown", shell=True)
+
     def on_query_completions(self, view, prefix, locations):
         if view.scope_name(locations[0]).strip() != 'source.d':
             return
