@@ -11,7 +11,7 @@ import re
 plugin_settings = None
 server_port = 9166
 server_path = None
-client_path = None
+client_path = ""
 
 server_process = None
 
@@ -115,9 +115,12 @@ def on_load(path=None, window=None, encoded_row_col=True, begin_edit=False):
 
 def start_server():
     global server_process
+    global client_path
 
-    if not (server_process is None) and server_process.poll() is None:
-        server_process.terminate()
+    out = call(client_path + " -q", shell=True, stdout=PIPE)
+    if out == 0:
+        print("Already running!")
+        return
 
     global plugin_settings
     plugin_settings = sublime.load_settings('DKit.sublime-settings')
@@ -127,7 +130,6 @@ def start_server():
     dcd_path = read_settings('dcd_path', '')
 
     global server_path
-    global client_path
     server_path = os.path.join(dcd_path, 'dcd-server' + ('.exe' if sys.platform == 'win32' else ''))
     client_path = os.path.join(dcd_path, 'dcd-client' + ('.exe' if sys.platform == 'win32' else ''))
 
