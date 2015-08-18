@@ -159,7 +159,7 @@ class DCD(sublime_plugin.EventListener):
             server_process.terminate()
 
     def on_window_command(self, window, command_name, args):
-        if command_name == ("exit" or "close_window"):
+        if command_name in ("exit", "close_window"):
             Popen(client_path + " --shutdown", shell=True)
 
     def on_query_completions(self, view, prefix, locations):
