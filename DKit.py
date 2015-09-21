@@ -390,11 +390,11 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
             package_folder = os.path.dirname(view.file_name())
             package_file = os.path.basename(view.file_name())
 
-            if package_file != 'dub.json' and package_file != 'package.json':
-                sublime.error_message('Please open the `dub.json` or `package.json` file and then run the command again.')
+            if package_file != 'dub.json' and package_file != 'dub.sdl' and package_file != 'package.json' :
+                sublime.error_message('Please open the `dub.json`, `dub.sdl` or `package.json` file and then run the command again.')
                 return
         else:
-            sublime.error_message('Please open the `dub.json` or `package.json` file and then run the command again.')
+            sublime.error_message('Please open the `dub.json`, `dub.sdl` or `package.json` file and then run the command again.')
             return
 
         dub = Popen(get_shell_args(['dub', 'describe']), stdin=PIPE, stdout=PIPE, shell=True, cwd=package_folder)
