@@ -13,6 +13,16 @@
       "name": "dub",
       "working_dir": "$project_path",
       "cmd": ["dub"]
+    },
+    {
+      "name": "dub build",
+      "working_dir": "$project_path",
+      "cmd": ["dub", "build"]
+    },
+    {
+      "name": "dub test",
+      "working_dir": "$project_path",
+      "cmd": ["dub", "test"]
     }
   ]
 }
