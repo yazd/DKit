@@ -24,7 +24,10 @@ Only Linux has been tested so far. Although it should work properly on other ope
 
 To install the plugin:
 
-1. Clone this repository into your Sublime Text packages folder. You can find where your folder is located by clicking on 'Preferences -> Browse Packages'. Alternatively, on Linux, look in your ~/.config/sublime-text-3/Packages/, or in sublime-text-3\Data\Packages on Windows.
+1. Clone this repository into your Sublime Text packages folder. You can find where your folder is located by clicking on 'Preferences -> Browse Packages'. Probable places:
+    * Linux - `~/.config/sublime-text-3/Packages/`
+    * Windows - `sublime-text-3\Data\Packages`
+    * Mac OSX - `~/Library/Application Support/Sublime Text 3/Packages`
 
 2. You'll need to install [DCD](https://github.com/Hackerpilot/DCD) first. Follow the steps in DCD's [readme](https://github.com/Hackerpilot/DCD/blob/master/README.md#setup).
   1. Do not run the server. DKit will automatically run the server when needed.
