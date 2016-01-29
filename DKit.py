@@ -132,6 +132,8 @@ def start_server():
     global server_path
     server_path = os.path.join(dcd_path, 'dcd-server' + ('.exe' if sys.platform == 'win32' else ''))
     client_path = os.path.join(dcd_path, 'dcd-client' + ('.exe' if sys.platform == 'win32' else ''))
+    server_path = sublime.expand_variables(server_path, sublime.active_window().extract_variables())
+    client_path = sublime.expand_variables(client_path, sublime.active_window().extract_variables())
 
     if not os.path.exists(server_path):
         sublime.error_message('DCD server doesn\'t exist in the path specified:\n' + server_path + '\n\nSetup the path in DCD package settings and then restart sublime to get things working.')
