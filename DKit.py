@@ -165,7 +165,7 @@ class DCD(sublime_plugin.EventListener):
             Popen(client_path + " --shutdown", shell=True)
 
     def on_query_completions(self, view, prefix, locations):
-        if view.scope_name(locations[0]).strip() != 'source.d':
+        if not view.scope_name(locations[0]).startswith('source.d'):
             return
 
         global server_process
