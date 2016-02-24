@@ -396,9 +396,11 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
             sublime.error_message('Please open the `dub.json`, `dub.sdl` or `package.json` file and then run the command again.')
             return
 
+        print('package_file: ' + package_file)
         dub = Popen(get_shell_args(['dub', 'describe']), stdin=PIPE, stdout=PIPE, shell=True, cwd=package_folder)
         description = dub.communicate()
         description = description[0].decode('utf-8')
+        print('description: ' + description)
 
         if description.startswith('Checking dependencies'):
             end_of_line = description.find('\n')
