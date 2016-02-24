@@ -225,10 +225,7 @@ class DCD(sublime_plugin.EventListener):
                 'T': 'mixin template'}
 
             visible_name = parts[0] + '\t' + cmap.get(parts[1], ' ')
-            if parts[1] == 'f':
-                text = parts[0]
-            else:
-                text = parts[0]
+            text = parts[0]
 
             return visible_name, text
 
