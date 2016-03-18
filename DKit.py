@@ -425,11 +425,13 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
         current_folders = set([folder['path'] for folder in project_settings['folders']])
 
         #get dub project info
-        for package in description['packages']:
+        for index, package in enumerate(description['packages']):
             base_path = package['path']
 
-            if base_path not in current_folders:
-                package_paths.append({'path': base_path, 'name': package['name']})
+            #skip all but the top level package when suppressing folders
+            if index == 0 or not read_settings("suppress_dependency_folders", False):
+                if base_path not in current_folders:
+                    package_paths.append({'path': base_path, 'name': package['name']})
 
             for f in package['importPaths']:
                 folder = os.path.join(base_path, f)

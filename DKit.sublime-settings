@@ -3,5 +3,6 @@
   "dcd_port": 9166,
   "include_paths": [
     "/usr/include/d/"
-  ]
+  ],
+  "suppress_dependency_folders": false
 }
