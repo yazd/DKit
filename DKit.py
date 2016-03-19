@@ -185,7 +185,7 @@ def update_project(view, package_folder):
 
     #get dub project info
     for index, package in enumerate(description['packages']):
-        base_path = package['path']
+        base_path = os.path.abspath(package['path'])
 
         #skip all but the top level package when suppressing folders
         if index == 0 or not read_settings("suppress_dependency_folders", False):
