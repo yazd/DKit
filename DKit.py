@@ -449,3 +449,12 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
 
         if update_project(view, package_folder):
             view.window().run_command('save_project_as')
+
+class DubUpdateProjectCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        package_file = read_settings("package_file", None)
+        if not package_file:
+            sublime.error_message("The active project does not specify the path to the DUB package file.")
+            return
+
+        update_project(self.view, os.path.dirname(package_file))
