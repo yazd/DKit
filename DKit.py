@@ -154,6 +154,57 @@ def start_server():
     server_process = Popen(get_shell_args(args), shell=True)
     return True
 
+def update_project(view, package_folder):
+    dub = Popen(get_shell_args(['dub', 'describe']), stdin=PIPE, stdout=PIPE, shell=True, cwd=package_folder)
+    description = dub.communicate()
+    description = description[0].decode('utf-8')
+
+    if description.startswith('Checking dependencies'):
+        end_of_line = description.find('\n')
+        description = description[end_of_line:]
+
+    try:
+        description = json.loads(description)
+    except ValueError:
+        sublime.error_message('Please run DUB at least once to figure out dependencies before trying again. Aborting.') #TODO: change into something more user-friendly
+        return False
+
+    include_paths = set()
+    package_paths = []
+
+    #new project set up
+    project_window = view.window()
+    project_settings = project_window.project_data()
+
+    #if we have no project and no folder open, create new project data
+    if project_settings is None:
+        project_settings = {}
+        project_settings['folders'] = []
+
+    current_folders = set([folder['path'] for folder in project_settings['folders']])
+
+    #get dub project info
+    for index, package in enumerate(description['packages']):
+        base_path = os.path.abspath(package['path'])
+
+        #skip all but the top level package when suppressing folders
+        if index == 0 or not read_settings("suppress_dependency_folders", False):
+            if base_path not in current_folders:
+                package_paths.append({'path': base_path, 'name': package['name']})
+
+        for f in package['importPaths']:
+            folder = os.path.join(base_path, f)
+            include_paths.add(folder)
+    settings = {'include_paths': [f for f in include_paths], 'package_file': view.file_name()}
+
+    project_settings['folders'].extend(package_paths)
+    project_settings.update({'settings': settings})
+
+    #update the window with the new project data
+    project_window.set_project_data(project_settings)
+
+    return True
+
 class DCD(sublime_plugin.EventListener):
     def __exit__(self, type, value, traceback):
         global server_process
@@ -396,53 +447,14 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
             sublime.error_message('Please open the `dub.json`, `dub.sdl` or `package.json` file and then run the command again.')
             return
 
-        dub = Popen(get_shell_args(['dub', 'describe']), stdin=PIPE, stdout=PIPE, shell=True, cwd=package_folder)
-        description = dub.communicate()
-        description = description[0].decode('utf-8')
+        if update_project(view, package_folder):
+            view.window().run_command('save_project_as')
 
-        if description.startswith('Checking dependencies'):
-            end_of_line = description.find('\n')
-            description = description[end_of_line:]
-
-        try:
-            description = json.loads(description)
-        except ValueError:
-            sublime.error_message('Please run DUB at least once to figure out dependencies before trying again. Aborting.') #TODO: change into something more user-friendly
+class DubUpdateProjectCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        package_file = read_settings("package_file", None)
+        if not package_file:
+            sublime.error_message("The active project does not specify the path to the DUB package file.")
             return
 
-        include_paths = set()
-        package_paths = []
-
-        #new project set up
-        project_window = view.window()
-        project_settings = project_window.project_data()
-
-        #if we have no project and no folder open, create new project data
-        if project_settings is None:
-            project_settings = {}
-            project_settings['folders'] = []
-
-        current_folders = set([folder['path'] for folder in project_settings['folders']])
-
-        #get dub project info
-        for index, package in enumerate(description['packages']):
-            base_path = package['path']
-
-            #skip all but the top level package when suppressing folders
-            if index == 0 or not read_settings("suppress_dependency_folders", False):
-                if base_path not in current_folders:
-                    package_paths.append({'path': base_path, 'name': package['name']})
-
-            for f in package['importPaths']:
-                folder = os.path.join(base_path, f)
-                include_paths.add(folder)
-        settings = {'include_paths': [f for f in include_paths], 'package_file': view.file_name()}
-
-        project_settings['folders'].extend(package_paths)
-        project_settings.update({'settings': settings})
-
-        #update the window with the new project data
-        project_window.set_project_data(project_settings)
-
-        #finally save the project
-        project_window.run_command('save_project_as')
+        update_project(self.view, os.path.dirname(package_file))

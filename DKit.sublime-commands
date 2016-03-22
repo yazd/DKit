@@ -20,6 +20,10 @@
     "command": "dub_create_project_from_package"
   },
   {
+    "caption": "DKit: Update Project",
+    "command": "dub_update_project"
+  },
+  {
     "caption": "DKit: Goto Definition",
     "command": "dcd_goto_definition"
   },
