@@ -15,9 +15,19 @@
       "cmd": ["dub"]
     },
     {
+      "name": "dub (single file)",
+      "working_dir": "$project_path",
+      "cmd": ["dub", "--single", "$file"]
+    },
+    {
       "name": "dub build",
       "working_dir": "$project_path",
       "cmd": ["dub", "build"]
+    },
+    {
+      "name": "dub build (single file)",
+      "working_dir": "$project_path",
+      "cmd": ["dub", "build", "--single", "$file"]
     },
     {
       "name": "dub test",
