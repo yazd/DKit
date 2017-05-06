@@ -36,6 +36,10 @@ def read_all_settings(key):
     result.extend(sublime.active_window().active_view().settings().get(key, []))
     return result
 
+def normalize_from_project_dir(file):
+    project_dir = os.path.dirname(sublime.active_window().project_file_name())
+    return os.path.normpath(os.path.join(project_dir, file))
+
 def open_file(filename):
     if sys.platform == 'win32':
         os.startfile(filename)
@@ -154,8 +158,8 @@ def start_server():
     server_process = Popen(get_shell_args(args), shell=True)
     return True
 
-def update_project(view, package_folder):
-    dub = Popen(get_shell_args(['dub', 'describe']), stdin=PIPE, stdout=PIPE, shell=True, cwd=package_folder)
+def update_project(view, package_file):
+    dub = Popen(get_shell_args(['dub', 'describe']), stdin=PIPE, stdout=PIPE, shell=True, cwd=os.path.dirname(package_file))
     description = dub.communicate()
     description = description[0].decode('utf-8')
 
@@ -179,6 +183,8 @@ def update_project(view, package_folder):
     #if we have no project and no folder open, create new project data
     if project_settings is None:
         project_settings = {}
+
+    if 'folders' not in project_settings:
         project_settings['folders'] = []
 
     current_folders = set([folder['path'] for folder in project_settings['folders']])
@@ -195,7 +201,8 @@ def update_project(view, package_folder):
         for f in package['importPaths']:
             folder = os.path.join(base_path, f)
             include_paths.add(folder)
-    settings = {'include_paths': [f for f in include_paths], 'package_file': view.file_name()}
+
+    settings = {'include_paths': [f for f in include_paths], 'package_file': package_file}
 
     project_settings['folders'].extend(package_paths)
     project_settings.update({'settings': settings})
@@ -437,17 +444,17 @@ class DubCreateProjectFromPackageCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         view = self.view
         if view.file_name():
-            package_folder = os.path.dirname(view.file_name())
-            package_file = os.path.basename(view.file_name())
+            package_file = view.file_name()
+            package_filename = os.path.basename(view.file_name())
 
-            if package_file != 'dub.json' and package_file != 'dub.sdl' and package_file != 'package.json' :
+            if package_filename != 'dub.json' and package_filename != 'dub.sdl' and package_filename != 'package.json' :
                 sublime.error_message('Please open the `dub.json`, `dub.sdl` or `package.json` file and then run the command again.')
                 return
         else:
             sublime.error_message('Please open the `dub.json`, `dub.sdl` or `package.json` file and then run the command again.')
             return
 
-        if update_project(view, package_folder):
+        if update_project(view, package_file):
             view.window().run_command('save_project_as')
 
 class DubUpdateProjectCommand(sublime_plugin.TextCommand):
@@ -457,4 +464,5 @@ class DubUpdateProjectCommand(sublime_plugin.TextCommand):
             sublime.error_message("The active project does not specify the path to the DUB package file.")
             return
 
-        update_project(self.view, os.path.dirname(package_file))
+        package_file = normalize_from_project_dir(package_file)
+        update_project(self.view, package_file)
