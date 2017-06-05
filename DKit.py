@@ -317,7 +317,7 @@ class DcdUpdateIncludePathsCommand(sublime_plugin.TextCommand):
             include_paths.add(os.path.dirname(self.view.file_name()))
 
         if len(include_paths) > 0:
-            args = ['"%s"' % client_path]
+            args = ['"%s"' % client_path, '-p', str(server_port)]
             args.extend(['-I' + p for p in include_paths])
 
             Popen(get_shell_args(args), shell=True).wait()
@@ -330,7 +330,7 @@ class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
             return
 
         pos = self.view.sel()[0].a
-        args = ['"%s"' % client_path, '--symbolLocation', '-c', str(pos)]
+        args = ['"%s"' % client_path, '--symbolLocation', '-c', str(pos), '-p', str(server_port)]
 
         client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
         contents = self.view.substr(sublime.Region(0, self.view.size()))
@@ -367,7 +367,7 @@ class DcdShowDocumentationCommand(sublime_plugin.TextCommand):
             return
 
         pos = self.view.sel()[0].a
-        args = ['"%s"' % client_path, '--doc', '-c', str(pos)]
+        args = ['"%s"' % client_path, '--doc', '-c', str(pos), '-p', str(server_port)]
 
         client = Popen(get_shell_args(args), stdin=PIPE, stdout=PIPE, shell=True)
         contents = self.view.substr(sublime.Region(0, self.view.size()))
