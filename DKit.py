@@ -354,7 +354,7 @@ class DcdGotoDefinitionCommand(sublime_plugin.TextCommand):
 
 class DcdShowDocumentationCommand(sublime_plugin.TextCommand):
     _REGEX = re.compile(r'(?<!\\)\\('
-                        '(?P<code>[\\\'"abfnrtv])|'
+                        '(?P<code>[\\\\\\\'"abfnrtv])|'
                         '(?P<oct>[0-7]{1,3})|'
                         'x(?P<hex>[0-9a-fA-F]{1,2})|'
                         'u(?P<uni>[0-9a-fA-F]{4})|'
