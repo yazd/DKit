@@ -1,6 +1,10 @@
 {
+  // Path to the directory containing both dcd-client and dcd-server executables
   "dcd_path": "/setup/my/path",
+  // Port to use for DCD client and server
   "dcd_port": 9166,
+  // Include path for existing source files.
+  // DCD will also provide completion for dub dependencies
   "include_paths": [
     "/usr/include/d/"
   ],
